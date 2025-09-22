@@ -14,3 +14,4 @@ Google Sheets → Apps Script (JSON) → GitHub Pages
 2. Web App olarak yayımla → URL'yi kopyala.
 3. `assets/config.js` içindeki `API_URL` değerini bu URL ile değiştir.
 4. GitHub Pages'i aktif et ve siteyi aç.
+ss
