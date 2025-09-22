@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EtkinKampüs | Temsilci Raporu</title>
+  <meta name="description" content="EtkinKampüs temsilci skala raporu: Anlık toplam sayılar, bölümlere göre dağılım, DOLU ve OLUMSUZ listeler." />
+  <link rel="icon" href="https://fav.farm/📊" />
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .card { @apply rounded-2xl shadow-lg bg-white p-6; }
+    .chip { @apply px-2 py-1 rounded-full text-xs font-medium; }
+    .table { @apply min-w-full divide-y divide-gray-200; }
+    .th { @apply px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider; }
+    .td { @apply px-4 py-3 text-sm text-gray-800; }
+    .skeleton { background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12), rgba(0,0,0,0.06)); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <header class="max-w-6xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">📊</span>
+        <h1 class="text-2xl md:text-3xl font-bold">EtkinKampüs Temsilci Raporu</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="refreshBtn" class="px-4 py-2 rounded-xl border bg-white hover:bg-gray-50">Yenile</button>
+        <label class="flex items-center gap-2 text-sm">
+          <input id="autorefresh" type="checkbox" class="accent-black">
+          <span>Oto yenile (60sn)</span>
+        </label>
+      </div>
+    </div>
+    <p class="text-gray-600 px-1 mt-1">Google E‑Tablolar’dan anlık verilerle güncellenir.</p>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 pb-16">
+    <!-- KPI Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="card">
+        <div class="text-sm text-gray-500">Toplam Temsilci</div>
+        <div id="kpi-current" class="text-3xl font-extrabold mt-1 skeleton h-8 w-24 rounded"></div>
+      </div>
+      <div class="card">
+        <div class="text-sm text-gray-500">Hedef Temsilci</div>
+        <div id="kpi-target" class="text-3xl font-extrabold mt-1 skeleton h-8 w-24 rounded"></div>
+        <div id="kpi-gap" class="text-xs text-gray-600 mt-2"></div>
+      </div>
+      <div class="card">
+        <div class="text-sm text-gray-500">Son Güncelleme</div>
+        <div id="updatedAt" class="text-lg font-semibold mt-1 skeleton h-6 w-48 rounded"></div>
+      </div>
+    </section>
+
+    <!-- Departments -->
+    <section class="card mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-xl font-bold">Bölümlere Göre Dağılım</h2>
+        <span id="dept-total" class="chip bg-gray-100 text-gray-700">Toplam: …</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="th">Bölüm</th>
+              <th class="th">Temsilci Sayısı</th>
+            </tr>
+          </thead>
+          <tbody id="departmentsBody" class="divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- DOLU LİSTE -->
+    <section class="card mt-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold">DOLU LİSTE</h2>
+        <div class="text-sm text-gray-500" id="doluCount"></div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="th">Ad Soyad</th>
+              <th class="th">Üniversite</th>
+              <th class="th">Bölüm</th>
+              <th class="th">Sınıf</th>
+              <th class="th">İletişim</th>
+            </tr>
+          </thead>
+          <tbody id="doluBody" class="divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-end gap-2 mt-3">
+        <button id="doluPrev" class="px-3 py-1 rounded border bg-white">‹ Önceki</button>
+        <span id="doluPage" class="text-sm text-gray-600">Sayfa 1</span>
+        <button id="doluNext" class="px-3 py-1 rounded border bg-white">Sonraki ›</button>
+      </div>
+    </section>
+
+    <!-- OLUMSUZ LİSTE -->
+    <section class="card mt-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold">OLUMSUZ LİSTE</h2>
+        <div class="text-sm text-gray-500" id="negCount"></div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="th">Ad Soyad</th>
+              <th class="th">Üniversite</th>
+              <th class="th">Bölüm</th>
+              <th class="th">Sınıf</th>
+              <th class="th">Not</th>
+            </tr>
+          </thead>
+          <tbody id="negBody" class="divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-end gap-2 mt-3">
+        <button id="negPrev" class="px-3 py-1 rounded border bg-white">‹ Önceki</button>
+        <span id="negPage" class="text-sm text-gray-600">Sayfa 1</span>
+        <button id="negNext" class="px-3 py-1 rounded border bg-white">Sonraki ›</button>
+      </div>
+    </section>
+
+    <footer class="text-center text-sm text-gray-500 mt-10">
+      EtkinKampüs © <span id="yil"></span> • GitHub Pages ile yayınlandı
+    </footer>
+  </main>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
